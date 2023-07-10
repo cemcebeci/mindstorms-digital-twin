@@ -2,8 +2,8 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-const int MAX_SIZE = 50;
-const int NUM_PIECES = 12;</declaration>
+const int MAX_SIZE = 26;
+const int NUM_PIECES = 25;</declaration>
 	<template>
 		<name x="5" y="5">Belt</name>
 		<parameter>int size, int queueSize,  broadcast chan &amp;tick, urgent chan &amp;put, urgent chan &amp;pop, int initialQueueLength</parameter>
@@ -282,35 +282,35 @@ broadcast chan tick;
 Ticker1 = Ticker(1, tick);
 
 
-Belt1 = Belt(13, 12, tick, station6ToBelt1, belt1ToStation1, NUM_PIECES);
+Belt1 = Belt(25, 1, tick, station6ToBelt1, belt1ToStation1, NUM_PIECES);
 
 Station1 = Station(10, belt1ToStation1, station1ToBelt2);
 
-Belt2 = Belt(17, 11, tick, station1ToBelt2, belt2ToStation2, 0);
+Belt2 = Belt(17, 1, tick, station1ToBelt2, belt2ToStation2, 0);
 
 Station2 = Station(5, belt2ToStation2, station2ToBelt3);
 
-Belt3 = Belt(23, 10, tick, station2ToBelt3, flowControllerInput, 0);
+Belt3 = Belt(23, 1, tick, station2ToBelt3, flowControllerInput, 0);
 
 FlowController1 = FlowController(flowControllerInput, flowControllerToStation3, flowControllerToBelt5);
 
 Station3 = Station(12, flowControllerToStation3, station3ToBelt4);
 
-Belt4 = Belt(4, 4, tick, station3ToBelt4, belt4ToStation4, 0);
+Belt4 = Belt(4, 1, tick, station3ToBelt4, belt4ToStation4, 0);
 
 Station4 = Station(6, belt4ToStation4, station4ToBelt7);
 
-Belt7 = Belt(6, 6, tick, station4ToBelt7, belt7ToJunction, 0);
+Belt7 = Belt(6, 1, tick, station4ToBelt7, belt7ToJunction, 0);
 
 Junction1 = Junction(tick, belt7ToJunction, belt6ToJunction, junctionToBelt8);
 
-Belt8 = Belt(3, 3, tick, junctionToBelt8, belt8ToStation6, 0);
+Belt8 = Belt(3, 1, tick, junctionToBelt8, belt8ToStation6, 0);
 
-Belt5 = Belt(12, 10, tick, flowControllerToBelt5, belt5ToStation5, 0);
+Belt5 = Belt(12, 1, tick, flowControllerToBelt5, belt5ToStation5, 0);
 
 Station5 = Station(9, belt5ToStation5, station5ToBelt6);
 
-Belt6 = Belt(5, 5, tick, station5ToBelt6, belt6ToJunction, 0);
+Belt6 = Belt(5, 1, tick, station5ToBelt6, belt6ToJunction, 0);
 
 Station6 = Station(14, belt8ToStation6, station6ToBelt1);
 
