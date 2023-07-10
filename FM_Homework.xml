@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int MAX_SIZE = 50;
+const int NUM_PIECES = 12;</declaration>
+	<template>
+		<name x="5" y="5">Belt</name>
+		<parameter>int size, int queueSize,  broadcast chan &amp;tick, urgent chan &amp;put, urgent chan &amp;pop, int initialQueueLength</parameter>
+		<declaration>// Place local declarations here.
+bool locations[MAX_SIZE];
+
+void shift() {
+    int i = 0;
+    int j;
+
+    while(i &lt; MAX_SIZE &amp;&amp; locations[i]) i++;
+
+    if(i == size)
+        return;
+
+    for(j = i; j &lt; size - 1; j ++) {
+        locations[j] = locations[j + 1];
+    }
+
+    locations[size - 1] = 0;
+}
+
+bool canReceive() {
+    int i = 0;
+
+    if(locations[size - 1] == 1) {
+        return false;
+    }
+
+    while (i &lt; queueSize) {
+        if(locations[i] == 0) 
+            return true;
+        i++;
+    }
+
+    return false;
+}
+
+void initialize() {
+    int i;
+    for (i = 0; i &lt; initialQueueLength; i ++)
+        locations[i] = 1;
+}
+
+bool queueOverflow() {
+    int i = 0;
+    while (i &lt;= queueSize) {
+        if(locations[i] == 0) 
+            return false;
+        i++;
+    }
+    return true;
+}
+
+bool overlap() {
+    int i = 0;
+    while (i &lt; size) {
+        if(locations[i] &gt; 1) 
+            return true;
+        i++;
+    }
+    return false;
+}
+
+int numWorkpieces() {
+    int total = 0;
+    int i;
+    for(i = 0; i &lt; MAX_SIZE; i++)
+        total += locations[i];
+
+    return total;
+}</declaration>
+		<location id="id0" x="170" y="8">
+		</location>
+		<location id="id1" x="-51" y="8">
+			<name x="-85" y="-25">uninitialized</name>
+			<urgent/>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="0" y="93">canReceive()</label>
+			<label kind="synchronisation" x="161" y="170">put?</label>
+			<label kind="assignment" x="255" y="85">locations[size - 1] = locations[size - 1] + 1</label>
+			<nail x="59" y="161"/>
+			<nail x="297" y="161"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-17" y="-93">locations[0] &gt; 0</label>
+			<label kind="synchronisation" x="153" y="-178">pop!</label>
+			<label kind="assignment" x="255" y="-102">locations[0] = locations[0] - 1</label>
+			<nail x="59" y="-153"/>
+			<nail x="280" y="-153"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="238" y="17">tick?</label>
+			<label kind="assignment" x="229" y="-42">shift()</label>
+			<nail x="306" y="59"/>
+			<nail x="306" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-17" y="8">initialize()</label>
+		</transition>
+	</template>
+	<template>
+		<name>Station</name>
+		<parameter>int delay, urgent chan &amp;push, urgent chan &amp;pop</parameter>
+		<declaration>clock x;
+int numWorkpieces;</declaration>
+		<location id="id2" x="-76" y="0">
+			<name x="-86" y="-34">idle</name>
+		</location>
+		<location id="id3" x="144" y="0">
+			<name x="136" y="-34">busy</name>
+			<label kind="invariant" x="110" y="17">x &lt;= delay</label>
+		</location>
+		<location id="id4" x="323" y="0">
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="331" y="42">pop!</label>
+			<label kind="assignment" x="-58" y="102">numWorkpieces--</label>
+			<nail x="323" y="102"/>
+			<nail x="-76" y="102"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="187" y="-17">x &gt;= delay</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="8" y="-17">push?</label>
+			<label kind="assignment" x="-59" y="0">x = 0, numWorkpieces++</label>
+		</transition>
+	</template>
+	<template>
+		<name>Junction</name>
+		<parameter>broadcast chan &amp;tick, urgent chan&amp; push1, urgent chan&amp; push2, urgent chan&amp; pop</parameter>
+		<declaration>int numWorkpieces;</declaration>
+		<location id="id5" x="-204" y="-17">
+			<name x="-214" y="-51">idle</name>
+		</location>
+		<location id="id6" x="-68" y="-17">
+			<urgent/>
+		</location>
+		<location id="id7" x="85" y="-17">
+			<name x="75" y="-51">received</name>
+		</location>
+		<location id="id8" x="280" y="-17">
+			<name x="270" y="-51">readyToPop</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="289" y="17">pop!</label>
+			<label kind="assignment" x="144" y="34">numWorkpieces--</label>
+			<nail x="280" y="34"/>
+			<nail x="-204" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="103" y="-34">tick?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-195" y="-8">push2?</label>
+			<label kind="assignment" x="-136" y="-8">numWorkpieces++</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-195" y="-76">push1?</label>
+			<label kind="assignment" x="-136" y="-76">numWorkpieces++</label>
+			<nail x="-204" y="-51"/>
+			<nail x="-68" y="-51"/>
+		</transition>
+	</template>
+	<template>
+		<name>FlowController</name>
+		<parameter>urgent chan &amp;receive, urgent chan &amp;putLeft, urgent chan &amp;putRight</parameter>
+		<declaration>int numWorkpieces;</declaration>
+		<location id="id9" x="-204" y="-8">
+			<name x="-246" y="0">idle</name>
+		</location>
+		<location id="id10" x="8" y="-8">
+		</location>
+		<location id="id11" x="8" y="-170">
+		</location>
+		<location id="id12" x="-204" y="-170">
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-272" y="-102">putLeft!</label>
+			<label kind="assignment" x="-331" y="-85">numWorkpieces--</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-127" y="-187">receive?</label>
+			<label kind="assignment" x="-178" y="-170">numWorkpieces++</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="8" y="-102">putRight!</label>
+			<label kind="assignment" x="8" y="-89">numWorkpieces--</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-127" y="-25">receive?</label>
+			<label kind="assignment" x="-186" y="-8">numWorkpieces++</label>
+		</transition>
+	</template>
+	<template>
+		<name>Ticker</name>
+		<parameter>int period, broadcast chan &amp; tick</parameter>
+		<declaration>clock x;</declaration>
+		<location id="id13" x="-8" y="0">
+			<label kind="invariant" x="-51" y="17">x &lt;= period</label>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-127" y="-59">x &gt;= period</label>
+			<label kind="synchronisation" x="-25" y="-127">tick!</label>
+			<label kind="assignment" x="34" y="-59">x = 0</label>
+			<nail x="-76" y="-102"/>
+			<nail x="59" y="-102"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+urgent chan station6ToBelt1;
+urgent chan belt1ToStation1;
+urgent chan station1ToBelt2;
+urgent chan belt2ToStation2;
+urgent chan station2ToBelt3;
+urgent chan belt5ToStation5;
+urgent chan station5ToBelt6;
+urgent chan belt6ToStation6;
+urgent chan flowControllerToStation3;
+urgent chan flowControllerToBelt5;
+urgent chan flowControllerInput;
+urgent chan station3ToBelt4;
+urgent chan belt4ToStation4;
+urgent chan station4ToBelt7;
+urgent chan belt7ToJunction;
+urgent chan junctionToBelt8;
+urgent chan belt8ToStation6;
+urgent chan belt6ToJunction;
+
+broadcast chan tick;
+
+Ticker1 = Ticker(1, tick);
+
+
+Belt1 = Belt(13, 12, tick, station6ToBelt1, belt1ToStation1, NUM_PIECES);
+
+Station1 = Station(10, belt1ToStation1, station1ToBelt2);
+
+Belt2 = Belt(17, 11, tick, station1ToBelt2, belt2ToStation2, 0);
+
+Station2 = Station(5, belt2ToStation2, station2ToBelt3);
+
+Belt3 = Belt(23, 10, tick, station2ToBelt3, flowControllerInput, 0);
+
+FlowController1 = FlowController(flowControllerInput, flowControllerToStation3, flowControllerToBelt5);
+
+Station3 = Station(12, flowControllerToStation3, station3ToBelt4);
+
+Belt4 = Belt(4, 4, tick, station3ToBelt4, belt4ToStation4, 0);
+
+Station4 = Station(6, belt4ToStation4, station4ToBelt7);
+
+Belt7 = Belt(6, 6, tick, station4ToBelt7, belt7ToJunction, 0);
+
+Junction1 = Junction(tick, belt7ToJunction, belt6ToJunction, junctionToBelt8);
+
+Belt8 = Belt(3, 3, tick, junctionToBelt8, belt8ToStation6, 0);
+
+Belt5 = Belt(12, 10, tick, flowControllerToBelt5, belt5ToStation5, 0);
+
+Station5 = Station(9, belt5ToStation5, station5ToBelt6);
+
+Belt6 = Belt(5, 5, tick, station5ToBelt6, belt6ToJunction, 0);
+
+Station6 = Station(14, belt8ToStation6, station6ToBelt1);
+
+
+// List one or more processes to be composed into a system.
+system Ticker1, Belt1, Belt2, Belt3, Belt4, Belt5, Belt6, Belt7, Belt8, Station1, Station2, Station3, Station4, Station5, Station6, FlowController1, Junction1;
+    </system>
+	<queries>
+		<query>
+			<formula>A[] Station1.numWorkpieces &lt;= 1 &amp;&amp; Station2.numWorkpieces &lt;= 1 &amp;&amp; Station3.numWorkpieces &lt;= 1 &amp;&amp; Station4.numWorkpieces &lt;= 1 &amp;&amp; Station5.numWorkpieces &lt;= 1 &amp;&amp; Station6.numWorkpieces &lt;= 1</formula>
+			<comment>No_Overload</comment>
+		</query>
+		<query>
+			<formula>A[] !Belt1.queueOverflow() &amp;&amp; !Belt2.queueOverflow() &amp;&amp; !Belt3.queueOverflow() &amp;&amp; !Belt4.queueOverflow() &amp;&amp; !Belt5.queueOverflow() &amp;&amp; !Belt6.queueOverflow() &amp;&amp; !Belt7.queueOverflow() &amp;&amp; !Belt8.queueOverflow()</formula>
+			<comment>No_Overflow</comment>
+		</query>
+		<query>
+			<formula>A[] !Belt1.overlap() &amp;&amp; !Belt2.overlap() &amp;&amp; !Belt3.overlap() &amp;&amp; !Belt4.overlap() &amp;&amp; !Belt5.overlap() &amp;&amp; !Belt6.overlap() &amp;&amp; !Belt7.overlap() &amp;&amp; !Belt8.overlap()</formula>
+			<comment>No_Collision</comment>
+		</query>
+		<query>
+			<formula>Station1.busy --&gt; Station1.idle</formula>
+			<comment>No_Deadlock</comment>
+		</query>
+		<query>
+			<formula>A[] !Belt1.uninitialized imply ((Station1.numWorkpieces + Station2.numWorkpieces + Station3.numWorkpieces + Station4.numWorkpieces + Station5.numWorkpieces + Station6.numWorkpieces
++ Belt1.numWorkpieces() + Belt2.numWorkpieces() + Belt3.numWorkpieces() + Belt4.numWorkpieces() + Belt5.numWorkpieces() + Belt6.numWorkpieces() + Belt7.numWorkpieces() + Belt8.numWorkpieces()
++ FlowController1.numWorkpieces + Junction1.numWorkpieces) == NUM_PIECES)</formula>
+			<comment>No_Loss</comment>
+		</query>
+	</queries>
+</nta>
