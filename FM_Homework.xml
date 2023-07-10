@@ -208,28 +208,22 @@ int numWorkpieces;</declaration>
 		</location>
 		<location id="id10" x="8" y="-8">
 		</location>
-		<location id="id11" x="8" y="-170">
-		</location>
-		<location id="id12" x="-204" y="-170">
-		</location>
 		<init ref="id9"/>
 		<transition>
-			<source ref="id12"/>
+			<source ref="id10"/>
 			<target ref="id9"/>
-			<label kind="synchronisation" x="-272" y="-102">putLeft!</label>
-			<label kind="assignment" x="-331" y="-85">numWorkpieces--</label>
-		</transition>
-		<transition>
-			<source ref="id11"/>
-			<target ref="id12"/>
-			<label kind="synchronisation" x="-127" y="-187">receive?</label>
-			<label kind="assignment" x="-178" y="-170">numWorkpieces++</label>
+			<label kind="synchronisation" x="-186" y="51">putLeft!</label>
+			<label kind="assignment" x="-186" y="68">numWorkpieces--</label>
+			<nail x="8" y="68"/>
+			<nail x="-204" y="68"/>
 		</transition>
 		<transition>
 			<source ref="id10"/>
-			<target ref="id11"/>
-			<label kind="synchronisation" x="8" y="-102">putRight!</label>
-			<label kind="assignment" x="8" y="-89">numWorkpieces--</label>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-186" y="-102">putRight!</label>
+			<label kind="assignment" x="-186" y="-85">numWorkpieces--</label>
+			<nail x="8" y="-85"/>
+			<nail x="-204" y="-85"/>
 		</transition>
 		<transition>
 			<source ref="id9"/>
@@ -242,13 +236,13 @@ int numWorkpieces;</declaration>
 		<name>Ticker</name>
 		<parameter>int period, broadcast chan &amp; tick</parameter>
 		<declaration>clock x;</declaration>
-		<location id="id13" x="-8" y="0">
+		<location id="id11" x="-8" y="0">
 			<label kind="invariant" x="-51" y="17">x &lt;= period</label>
 		</location>
-		<init ref="id13"/>
+		<init ref="id11"/>
 		<transition>
-			<source ref="id13"/>
-			<target ref="id13"/>
+			<source ref="id11"/>
+			<target ref="id11"/>
 			<label kind="guard" x="-127" y="-59">x &gt;= period</label>
 			<label kind="synchronisation" x="-25" y="-127">tick!</label>
 			<label kind="assignment" x="34" y="-59">x = 0</label>
