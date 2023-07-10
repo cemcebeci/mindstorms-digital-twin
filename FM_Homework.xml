@@ -279,12 +279,12 @@ urgent chan belt6ToJunction;
 
 broadcast chan tick;
 
-Ticker1 = Ticker(1, tick);
+Ticker1 = Ticker(10, tick);
 
 
 Belt1 = Belt(13, 12, tick, station6ToBelt1, belt1ToStation1, NUM_PIECES);
 
-Station1 = Station(10, belt1ToStation1, station1ToBelt2);
+Station1 = Station(8, belt1ToStation1, station1ToBelt2);
 
 Belt2 = Belt(17, 11, tick, station1ToBelt2, belt2ToStation2, 0);
 
@@ -294,11 +294,11 @@ Belt3 = Belt(23, 10, tick, station2ToBelt3, flowControllerInput, 0);
 
 FlowController1 = FlowController(flowControllerInput, flowControllerToStation3, flowControllerToBelt5);
 
-Station3 = Station(12, flowControllerToStation3, station3ToBelt4);
+Station3 = Station(15, flowControllerToStation3, station3ToBelt4);
 
 Belt4 = Belt(4, 4, tick, station3ToBelt4, belt4ToStation4, 0);
 
-Station4 = Station(6, belt4ToStation4, station4ToBelt7);
+Station4 = Station(12, belt4ToStation4, station4ToBelt7);
 
 Belt7 = Belt(6, 6, tick, station4ToBelt7, belt7ToJunction, 0);
 
@@ -308,11 +308,11 @@ Belt8 = Belt(3, 3, tick, junctionToBelt8, belt8ToStation6, 0);
 
 Belt5 = Belt(12, 10, tick, flowControllerToBelt5, belt5ToStation5, 0);
 
-Station5 = Station(9, belt5ToStation5, station5ToBelt6);
+Station5 = Station(14, belt5ToStation5, station5ToBelt6);
 
 Belt6 = Belt(5, 5, tick, station5ToBelt6, belt6ToJunction, 0);
 
-Station6 = Station(14, belt8ToStation6, station6ToBelt1);
+Station6 = Station(13, belt8ToStation6, station6ToBelt1);
 
 
 // List one or more processes to be composed into a system.
